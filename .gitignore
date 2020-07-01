@@ -1,6 +1,10 @@
 # ignore everything (via * below)
 *
 
+#allow folder's hierarchy
+
+!*/
+
 # upload c and cpp files
 !*.c
 !*.cpp
