@@ -1,0 +1,19 @@
+# ignore everything (via * below)
+*
+
+# upload c and cpp files
+!*.c
+!*.cpp
+
+# upload h files
+!*.hpp
+!*.h
+
+#uplaod java files
+!*.java
+
+#upload gitignore
+!.gitignore
+
+#upload makfiles
+![mM]akefile
