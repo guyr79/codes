@@ -7,8 +7,8 @@
  * Reviewer: Irad Ratmansky                                                     *
  * 27.06.2020           					    	                            *
  *******************************************************************************/
-#ifndef DVEC_H
-#define DVEC_H
+#ifndef __DVEC_H__
+#define __DVEC_H__
 
 #include "utils.h"
 #include <stddef.h> /*  size_t */

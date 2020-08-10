@@ -7,8 +7,8 @@
  * Reviewer: REVIEWER                                                     *
  * DATE        					    	                            *
  *******************************************************************************/
-#ifndef NAME_H
-#define NAME_H
+#ifndef __NAME_H__
+#define __NAME_H__
 
 #include "utils.h"
 /*******************************************************************************/
@@ -55,7 +55,7 @@
 /*  Description:      
 *   Parameters:      */
 
-/*  Description:    sets index bit on  
+/*  Description:      
 *   Parameters:      */
 
 /*  Description:      
@@ -86,7 +86,7 @@
 *   Parameters:     */
 
 /*  Description:    Frees NAME allocated memory
-*   Parameters:     NAME:   NAME_TYPE to free */
+*   Parameters:     NAME:   NAME to free */
 
 #endif
 /*******************************************************************************/
