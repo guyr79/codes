@@ -25,7 +25,7 @@
  /*******************************************************************************/
 int LinkedlistCreateTest(void);
 int LinkedlistPushPopTest(void);
-int LinkedlistAddRemoveTest(void);
+int LinkedListAddBeforeRemoveTest(void);
 int LinkedlistCutAndConcateTest(void);
 int LinkedlistForEachAndFindTest(void);
 /*
@@ -71,7 +71,7 @@ int main(void)
 {
     RUN_TEST(LinkedlistCreateTest);
     RUN_TEST(LinkedlistPushPopTest);
-    RUN_TEST(LinkedlistAddRemoveTest);
+    RUN_TEST(LinkedListAddBeforeRemoveTest);
     RUN_TEST(LinkedlistCutAndConcateTest);
     RUN_TEST(LinkedlistForEachAndFindTest);
     return EXIT_SUCCESS;
@@ -105,8 +105,7 @@ int LinkedlistCreateTest(void)
         ListDestroy(lst);
         return EXIT_FAILURE;
     }
-    if (ListNext(ListHead(lst)) != ListTail(lst) ||
-        ListPrev(ListTail(lst)) != ListHead(lst))
+    if (ListBegin(lst) != ListTail(lst))
     {
         ListDestroy(lst);
         return EXIT_FAILURE;
@@ -134,18 +133,18 @@ int LinkedlistPushPopTest(void)
         return EXIT_FAILURE;
     }
 
-    runner = ListHead(lst);
+    runner = ListBegin(lst);
 
     for (i = 2; i>=0; --i)
     {
         int data;
-        runner = ListNext(runner);
         data = *(int *)ListGetData(runner);
         if (data != nums[i])
         {
             ListDestroy(lst);
             return EXIT_FAILURE;
         }
+        runner = ListNext(runner);
     }
 
     ListPopFront(lst);
@@ -155,18 +154,18 @@ int LinkedlistPushPopTest(void)
         return EXIT_FAILURE;
     }
 
-    runner = ListHead(lst);
+    runner = ListBegin(lst);
 
     for (i = 1; i>=0; --i)
     {
         int data;
-        runner = ListNext(runner);
         data = *(int *)ListGetData(runner);
         if (data != nums[i])
         {
             ListDestroy(lst);
             return EXIT_FAILURE;
         }
+        runner = ListNext(runner);
     }
 
     ListPopBack(lst);
@@ -176,7 +175,7 @@ int LinkedlistPushPopTest(void)
         return EXIT_FAILURE;
     }
 
-    if (nums[1] != *(int *)ListGetData(ListNext(ListHead(lst))))
+    if (nums[1] != *(int *)ListGetData(ListBegin(lst)))
     {
         ListDestroy(lst);
         return EXIT_FAILURE;
@@ -186,7 +185,7 @@ int LinkedlistPushPopTest(void)
     return EXIT_SUCCESS;
 }
 /*******************************************************************************/
-int LinkedlistAddRemoveTest(void)
+int LinkedListAddBeforeRemoveTest(void)
 {
     list_t *lst = NULL;
     l_iter_t *runner = NULL, *tail = NULL;
@@ -196,14 +195,14 @@ int LinkedlistAddRemoveTest(void)
     if (NULL == lst)
         return EXIT_FAILURE;
 
-    runner = ListNext(ListNext(ListHead(lst)));
+    runner = ListNext(ListBegin(lst));
     ListRemove(runner);
     if (ListSize(lst)!= 2)
     {
         ListDestroy(lst);
         return EXIT_FAILURE;
     }
-    runner = ListNext(ListHead(lst));
+    runner = ListBegin(lst);
     if (*(int *)ListGetData(runner) != nums[2])
     {
         ListDestroy(lst);
@@ -214,15 +213,9 @@ int LinkedlistAddRemoveTest(void)
         ListDestroy(lst);
         return EXIT_FAILURE;
     }
-    ListAdd(runner, &nums[1]);
+    ListAddBefore(ListNext(runner), &nums[1]);
 
-    runner = ListHead(lst);
-    if (ListPrev(runner) != NULL)
-    {
-        ListDestroy(lst);
-        return EXIT_FAILURE;
-    }
-    runner = ListNext(runner);
+    runner = ListBegin(lst);
     tail = ListTail(lst);
     i = 3;
     while (!ListSameIter(runner, tail))
@@ -246,8 +239,8 @@ int LinkedlistCutAndConcateTest(void)
     int i = 0, bm_arr[6] ={ 20, 20, 10, 5, 10, 5 };
     lst1 = _initSampleList();
     lst2 = _initSampleList();
-    runner = ListNext(ListHead(lst1));
-    ListCutAndConcate(runner, ListNext(ListHead(lst2)), ListPrev(ListTail(lst2)));
+    runner = ListBegin(lst1);
+    ListCutAndConcate(runner, ListBegin(lst2), ListTail(lst2));
     tail = ListTail(lst1);
     _ListPrintInt(lst1);
     while (!ListSameIter(runner, tail))
@@ -275,13 +268,13 @@ int LinkedlistForEachAndFindTest(void)
     lst = _initSampleList();
     if (NULL == lst)
         return EXIT_FAILURE;
-    runner = ListNext(ListHead(lst));
+    runner = ListBegin(lst);
     tail = ListTail(lst);
     i = 3;
     while (!ListSameIter(runner, tail))
     {
         --i;
-        temp = ListFind(ListNext((ListHead(lst))), tail, IntCmp, NULL, &nums[i]);
+        temp = ListFind(ListBegin(lst), tail, IntCmp, NULL, &nums[i]);
         if (temp == NULL || i < 0 || *(int*)ListGetData(runner) != nums[i])
         {
             ListDestroy(lst);
@@ -289,11 +282,11 @@ int LinkedlistForEachAndFindTest(void)
         }
         runner = ListNext(runner);
     }
-    temp = ListFind(ListNext((ListHead(lst))), tail, IntCmp, NULL, &test_Val);
+    temp = ListFind(ListBegin(lst), tail, IntCmp, NULL, &test_Val);
     if (NULL != temp)
         return EXIT_FAILURE;
 
-    runner = ListNext(ListHead(lst));
+    runner = ListBegin(lst);
     ListForEach(runner, tail, IntActFnc, &test_Val);
     i = 3;
     while (!ListSameIter(runner, tail))
@@ -304,13 +297,13 @@ int LinkedlistForEachAndFindTest(void)
             ListDestroy(lst);
             return EXIT_FAILURE;
         }
-        temp = ListFind(ListNext((ListHead(lst))), tail, IntCmp, NULL, &bm_arr[i]);
+        temp = ListFind(ListBegin(lst), tail, IntCmp, NULL, &bm_arr[i]);
         if (NULL != temp)
         {
             ListDestroy(lst);
             return EXIT_FAILURE;
         }
-        temp = ListFind(ListNext((ListHead(lst))), tail, IntCmp, NULL, &nums[i]);
+        temp = ListFind(ListBegin(lst), tail, IntCmp, NULL, &nums[i]);
         if (temp == NULL || *(int*)ListGetData(runner)
             != bm_arr[i] + test_Val)
         {
@@ -332,7 +325,7 @@ int LinkedlistForEachAndFindTest(void)
 void _ListPrintInt(list_t* lst)
 {
     l_iter_t *runner = NULL, *tail = NULL;
-    runner = ListNext(ListHead(lst)), tail = ListTail(lst);
+    runner = ListBegin(lst), tail = ListTail(lst);
     putchar('{');
     while (!ListSameIter(runner, tail))
 

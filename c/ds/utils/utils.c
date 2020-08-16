@@ -108,4 +108,16 @@ void leftRotate(void *arr, size_t steps, size_t arr_size)
 		char_runner[k] = temp;
 	}
 }
+/***********************************************************/
+int IntQsortFunc(const void *d1, const void *d2)
+{
+    int dd1 = *(int *)d1, dd2 = *(int *)d2;
+    return (dd1 > dd2) ? 1 : ((dd1 == dd2) ? 0 : -1);
+}
+/***********************************************************/
+int StrQSortFunc(const void *d1, const void *d2)
+{
+    char *dd1 = (char *)d1, *dd2 = (char *)d2;
+    return strcmp(dd1, dd2);
+}
 /*********************   END OF API FUNCTION DEFINITIONS   *******************/

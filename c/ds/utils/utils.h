@@ -21,6 +21,8 @@
 /* UNUSED(x) deals with unused variables, eliminating compiler's warnings */
 #define UNUSED(x) (void)(x)
 
+#define ARR_SIZE(x) (sizeof(x)/sizeof(x[0]))
+
 /* ABS(x) returns the absolute value of x*/
 #define ABS(x) ((x > 0) ? (x) : -(x)) /* important to note: (x) : (-x) is a bug!!! */
 
@@ -77,6 +79,10 @@ void reverse(char s[]);
 size_t GCD(size_t a, size_t b);
 /* left rotate arr by STEPS steps. The rotation happens byte by byte */
 void leftRotate(void *arr, size_t steps, size_t arr_size);
+/* */
+int IntQsortFunc(const void *d1, const void *d2);
+/* */
+int StrQSortFunc(const void *d1, const void *d2);
 
 #endif
 /*****************************************************************************/

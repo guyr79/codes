@@ -80,12 +80,12 @@
 *   Parameters:      */
 
 /*  Description:    
-*   Parameters:     b */
+*   Parameters:      */
 
 /*  Description:    
-*   Parameters:     */
+*   Parameters:      */
 
-/*  Description:    Frees NAME allocated memory
+/*  Description:    Frees NAME's allocated memory
 *   Parameters:     NAME:   NAME to free */
 
 #endif

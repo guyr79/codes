@@ -76,7 +76,7 @@ size_t ListSize(const list_t *lst)
     l_iter_t *runner = NULL, *tail = NULL;
     size_t size = 0;
     assert(NULL != lst);
-    runner = ListNext(ListHead(lst)), tail = ListTail(lst);
+    runner = ListBegin(lst), tail = ListTail(lst);
     while (!ListSameIter(runner, tail))
     {
         ++size;
@@ -91,10 +91,10 @@ int ListIsEmpty(const list_t *lst)
     return ListSize(lst) == 0;
 }
 /*******************************************************************************/
-l_iter_t *ListHead(const list_t *lst)
+l_iter_t *ListBegin(const list_t *lst)
 {
     assert(NULL != lst);
-    return lst->head;
+    return lst->head->next;
 }
 /*******************************************************************************/
 l_iter_t *ListTail(const list_t *lst)
@@ -115,39 +115,38 @@ l_iter_t * ListPrev(const l_iter_t  *iter)
     return iter->prev;
 }
 /*******************************************************************************/
-int ListPushFront(list_t *lst, const void *data)
+l_iter_t *ListPushFront(list_t *lst, const void *data)
 {
     l_iter_t *new_node = NULL;
     assert(NULL != lst);
-    new_node = _LNodeCreate(data, ListNext(ListHead(lst)), ListHead(lst));
+    new_node = _LNodeCreate(data, ListBegin(lst), lst->head);
     if (NULL == new_node)
-        return EXIT_FAILURE;
+        return NULL;
     ListNext(new_node)->prev = new_node;
-    ListHead(lst)->next = new_node;
-    return EXIT_SUCCESS;
+    lst->head->next = new_node;
+    return new_node;
 }
 /*******************************************************************************/
-int ListPushBack(list_t *lst, const void *data)
+l_iter_t *ListPushBack(list_t *lst, const void *data)
 {
     l_iter_t *new_node = NULL;
     assert(NULL != lst);
     new_node = _LNodeCreate(data, ListTail(lst), ListPrev(ListTail(lst)));
     if (NULL == new_node)
-        return EXIT_FAILURE;
+        return NULL;
     ListTail(lst)->prev = new_node;
     ListPrev(new_node)->next = new_node;
-    return EXIT_SUCCESS;
+    return new_node;
 }
 /*******************************************************************************/
 void ListPopFront(list_t *lst)
 {
-    l_iter_t *to_delete = NULL, *head = NULL, *new_next = NULL;
+    l_iter_t *to_delete = NULL, *new_first_element = NULL;
     assert(NULL != lst);
-    head = ListHead(lst);
-    to_delete = ListNext(head);
-    new_next = ListNext(to_delete);
-    head->next = new_next;
-    new_next->prev = head;
+    to_delete = ListBegin(lst);
+    new_first_element = ListNext(to_delete);
+    lst->head->next = new_first_element;
+    new_first_element->prev = lst->head;
     _LNodeDestroy(to_delete);
 }
 /*******************************************************************************/
@@ -175,42 +174,42 @@ void *ListGetData(const l_iter_t *iter)
     return iter->data;
 }
 /*******************************************************************************/
-int ListAdd(l_iter_t *add_location, const void *data)
+l_iter_t *ListAddBefore(l_iter_t *add_before_me, const void *data)
 {
     l_iter_t *new = NULL;
-    assert(NULL != add_location);
-    new = _LNodeCreate(data, ListNext(add_location), add_location);
+    assert(NULL != add_before_me);
+    new = _LNodeCreate(data, add_before_me, ListPrev(add_before_me));
     if (NULL == new)
-        return EXIT_FAILURE;
-    ListNext(add_location)->prev = new;
-    add_location->next = new;
-    return EXIT_SUCCESS;
+        return NULL;
+    ListPrev(add_before_me)->next = new;
+    add_before_me->prev = new;
+    return new;
 }
 /*******************************************************************************/
-void ListRemove(l_iter_t *iter)
+l_iter_t *ListRemove(l_iter_t *iter)
 {
+    l_iter_t * to_return = NULL;
     assert(NULL != iter);
-    ListPrev(iter)->next = ListNext(iter);
+    to_return = ListPrev(iter)->next = ListNext(iter);
     ListNext(iter)->prev = ListPrev(iter);
     _LNodeDestroy(iter);
+    return to_return;
 }
 /*******************************************************************************/
 l_iter_t *ListFind(const l_iter_t *from, const l_iter_t *to,
     cmp_func_t cmp, void *param, const void *data)
 {
-    int flag = 0;
+    int flag = 1;
     assert(from != NULL);
     assert(to != NULL);
     assert(cmp != NULL);
 
-    while (!ListSameIter(to, from) && !flag)
+    while (!ListSameIter(from, to) && flag)
     {
         flag = cmp(data, ListGetData(from), param);
-        from = ListNext(from);
+        from = (flag) ? ListNext(from): from;
     }
-    if (flag)
-        return (l_iter_t *)from;
-    return NULL;
+    return (flag)? NULL : (l_iter_t *)from;
 }
 /*******************************************************************************/
 int ListForEach(l_iter_t *from, const l_iter_t *to,
@@ -234,27 +233,24 @@ void ListCutAndConcate(l_iter_t *conc_to, l_iter_t *range_from, l_iter_t *range_
     assert(conc_to != NULL);
     assert(range_from != NULL);
     assert(range_to != NULL);
-    ListPrev(range_from)->next = ListNext(range_to);
-    ListNext(range_to)->prev = ListPrev(range_from);
+    ListPrev(range_from)->next = range_to;
+    range_to->prev = ListPrev(range_from);
     range_from->prev = conc_to;
-    range_to->next = ListNext(conc_to);
-    ListNext(conc_to)->prev = range_to;
+    ListNext(conc_to)->prev = ListPrev(range_to);
     conc_to->next = range_from;
 }
 /*******************************************************************************/
 void ListDestroy(list_t *lst)
 {
-    l_iter_t *runner = NULL, *temp = NULL;
+    l_iter_t *runner = NULL;
     assert(NULL != lst);
-    runner = ListHead(lst);
-    while (NULL != runner)
+    runner = ListBegin(lst);
+    while (!ListSameIter(runner, ListTail(lst)))
     {
-        temp = runner;
-        runner = ListNext(runner);
-        _LNodeDestroy(temp);
+        runner = ListRemove(runner);
     }
-    lst->head = NULL;
-    lst->tail = NULL;
+    _LNodeDestroy(lst->head), _LNodeDestroy(lst->tail);
+    lst->head = lst->tail = NULL;
     free(lst);
 }
 /*******************************************************************************/
